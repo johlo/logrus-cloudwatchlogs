@@ -30,13 +30,18 @@ func NewHook(groupName, streamName string, cfg *aws.Config) (*Hook, error) {
 }
 
 func NewBatchingHook(groupName, streamName string, cfg *aws.Config, batchFrequency time.Duration) (*Hook, error) {
+	sess, err := session.NewSession(cfg)
+	if err != nil {
+		return nil, err
+	}
+
 	h := &Hook{
-		svc:        cloudwatchlogs.New(session.New(cfg)),
+		svc:        cloudwatchlogs.New(sess),
 		groupName:  groupName,
 		streamName: streamName,
 	}
 
-	_, err := h.svc.CreateLogGroup(&cloudwatchlogs.CreateLogGroupInput{
+	_, err = h.svc.CreateLogGroup(&cloudwatchlogs.CreateLogGroupInput{
 		LogGroupName: aws.String(groupName),
 	})
 
@@ -77,6 +82,8 @@ func NewBatchingHook(groupName, streamName string, cfg *aws.Config, batchFrequen
 
 	if batchFrequency > 0 {
 		h.ch = make(chan *cloudwatchlogs.InputLogEvent, 10000)
+		// Linter gives a warning about time.Tick not being GC'd
+		// but that should be fine in our case
 		go h.putBatches(time.Tick(batchFrequency))
 	}
 

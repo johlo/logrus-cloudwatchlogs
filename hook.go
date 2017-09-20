@@ -7,6 +7,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws/awserr"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
@@ -37,8 +39,12 @@ func NewBatchingHook(groupName, streamName string, cfg *aws.Config, batchFrequen
 	_, err := h.svc.CreateLogGroup(&cloudwatchlogs.CreateLogGroupInput{
 		LogGroupName: aws.String(groupName),
 	})
+
 	if err != nil {
-		return nil, err
+		awsErr := err.(awserr.Error)
+		if awsErr.Code() != "ResourceAlreadyExistsException" {
+			return nil, err
+		}
 	}
 
 	resp, err := h.svc.DescribeLogStreams(&cloudwatchlogs.DescribeLogStreamsInput{
@@ -61,8 +67,12 @@ func NewBatchingHook(groupName, streamName string, cfg *aws.Config, batchFrequen
 		LogGroupName:  aws.String(groupName),
 		LogStreamName: aws.String(streamName),
 	})
+
 	if err != nil {
-		return nil, err
+		awsErr := err.(awserr.Error)
+		if awsErr.Code() != "ResourceAlreadyExistsException" {
+			return nil, err
+		}
 	}
 
 	if batchFrequency > 0 {

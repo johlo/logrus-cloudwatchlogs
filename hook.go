@@ -34,6 +34,13 @@ func NewBatchingHook(groupName, streamName string, cfg *aws.Config, batchFrequen
 		streamName: streamName,
 	}
 
+	_, err := h.svc.CreateLogGroup(&cloudwatchlogs.CreateLogGroupInput{
+		LogGroupName: aws.String(groupName),
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	resp, err := h.svc.DescribeLogStreams(&cloudwatchlogs.DescribeLogStreamsInput{
 		LogGroupName:        aws.String(h.groupName), // Required
 		LogStreamNamePrefix: aws.String(h.streamName),

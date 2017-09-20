@@ -19,10 +19,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/kdar/logrus-cloudwatchlogs"
+	"github.com/johlo/logrus-cloudwatchlogs"
 )
 
 func main() {

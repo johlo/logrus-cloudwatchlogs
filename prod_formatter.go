@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/kardianos/osext"
+	"github.com/sirupsen/logrus"
 )
 
 type ProdFormatter struct {
